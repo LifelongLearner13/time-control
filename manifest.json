@@ -1,6 +1,4 @@
 {
-  "manifest_version": 2,
-
   "name": "Time Control",
   "description": "Persist time span preferences accross multiple Google searches.",
   "version": "1.0",
@@ -18,7 +16,15 @@
     "default_popup": "index.html"
   },
   "permissions": [
+    "storage",
     "activeTab",
-    "http://*.google.com/",
-  ]
+    "*://*.google.com/*",
+    "declarativeContent"
+  ],
+  "icons" : {
+    "16": "images/icon16.png",
+    "24": "images/icon24.png",
+    "32": "images/icon32.png"
+  },
+  "manifest_version": 2
 }

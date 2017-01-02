@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Time Control</title>
+  <style>
+      body {
+        height: 150px;
+        width: 220px;
+      }
+    </style>
 </head>
 <body>
   <hgroup>
@@ -12,6 +18,18 @@
     <h2>Maintain time spans across Google searches</h2>
   </hgroup>
 
-  
+  <form id="form">
+    <select id="time-options">
+      <option value="tbs=qdr:a" selected>Any Time</option>
+      <option value="tbs=qdr:h">Past Hour</option>
+      <option value="tbs=qdr:d">Past 24 Hours</option>
+      <option value="tbs=qdr:w">Past Week</option>
+      <option value="tbs=qdr:m">Past Month</option>
+      <option value="tbs=qdr:y">Past Year</option>
+      <option value="customRange">Custom Range</option>
+    </select>
+    <button type="submit">Submit</button>
+  </form>
+  <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>
