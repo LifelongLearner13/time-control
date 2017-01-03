@@ -17,3 +17,20 @@ chrome.runtime.onInstalled.addListener(function() {
     ]);
   });
 });
+
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+    console.log(details)
+    chrome.storage.local.get('dateConfig', function (items) {
+      console.log('dateConfig', items);
+      if(items.dateConfig) {
+        if(details.url.indexOf("www.google.com/search") !== -1 && details.url.indexOf(items.dateConfig) === -1) {
+          console.log('inside if')
+          var newURL = details.url + '&' + items.dateConfig;
+          chrome.tabs.update(details.tabId, {
+              url: newURL,
+          });
+        }
+      }
+    });
+  }
+);

@@ -19,6 +19,7 @@
   </hgroup>
 
   <form id="form">
+    <label for="time-options">Choose the time span for your searches.</label>
     <select id="time-options">
       <option value="tbs=qdr:a" selected>Any Time</option>
       <option value="tbs=qdr:h">Past Hour</option>
@@ -26,8 +27,11 @@
       <option value="tbs=qdr:w">Past Week</option>
       <option value="tbs=qdr:m">Past Month</option>
       <option value="tbs=qdr:y">Past Year</option>
-      <option value="customRange">Custom Range</option>
+      <option value="custom-range">Custom Range</option>
     </select>
+    <div id="date-range">
+
+    </div>
     <button type="submit">Submit</button>
   </form>
   <script type="text/javascript" src="js/popup.js"></script>

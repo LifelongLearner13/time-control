@@ -7,7 +7,16 @@ function runSubmit(event) {
   chrome.storage.local.set({
     dateConfig: value
   }, function () {
-    chrome.tabs.executeScript({file: 'js/formSubmit.js'});
+    var query = { active: true, currentWindow: true };
+    chrome.tabs.query(query, function(tabs) {
+      var tabID = tabs[0].id;
+      console.log(tabID)
+      var oldURL = window.location.href;
+      var newURL = oldURL + '&' + value;
+      chrome.tabs.update(tabID, {
+          url: newURL,
+      });
+    });
   });
 
 }
