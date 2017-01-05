@@ -7,7 +7,7 @@ function runSubmit(event) {
   chrome.storage.local.set({
     dateConfig: value
   }, function () {
-    var query = { active: true, currentWindow: true };
+    var query = { active:true,windowType:"normal", currentWindow: true };
     chrome.tabs.query(query, function(tabs) {
       var tabID = tabs[0].id;
       console.log(tabID)
