@@ -29,8 +29,11 @@
       <label> <input type="radio" name="time-span" value="tbs=qdr:w"> Past Week</label>
       <label> <input type="radio" name="time-span" value="tbs=qdr:m"> Past Month</label>
       <label> <input type="radio" name="time-span" value="tbs=qdr:y"> Past Year</label>
-      <label aria-expanded="false"> <input type="radio" name="time-span" value="custom-range"> Custom Range</label>
-      <fieldset aria-hidden="true" class="display-none" tabindex="-1">
+      <label aria-expanded="false">
+        <input type="radio" name="time-span" value="custom-range" id="expandable">
+        Custom Range
+      </label>
+      <fieldset id="collapsible" aria-hidden="true" class="display-none" tabindex="-1">
         <legend>Choose custom time range:</legend>
         <label for="start-date">Input start date (mm/dd/yyyy)</label>
         <input type="text" name="start-date" id="start-date">
@@ -43,7 +46,7 @@
   </form>
 
   <label><input type="checkbox" id="disable-extension" value="disable-extension"> Disable the extension from working</label>
-  
+
   <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>

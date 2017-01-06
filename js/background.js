@@ -32,11 +32,13 @@ chrome.runtime.onInstalled.addListener(function() {
 chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
   console.log(details)
   chrome.storage.local.get('dateConfig', function(items) {
-    console.log('dateConfig', items);
-    if (items.dateConfig) {
-      if (details.url.indexOf(items.dateConfig) === -1 && details.url.indexOf('tbs=qdr') === -1 && details.url.indexOf('tbs=cdr') === -1) {
+    var dateConfig = items.dateConfig;
+    console.log('dateConfig', dateConfig);
+    if (dateConfig.timeSpan) {
+      var timeSpan = dateConfig.timeSpan;
+      if (details.url.indexOf(timeSpan) === -1 && details.url.indexOf('tbs=qdr') === -1 && details.url.indexOf('tbs=cdr') === -1) {
         console.log('inside if')
-        var newURL = details.url + '&' + items.dateConfig;
+        var newURL = details.url + '&' + timeSpan;
         chrome.tabs.update(details.tabId, {url: newURL});
       }
     }
