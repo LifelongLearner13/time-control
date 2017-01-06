@@ -5,35 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Time Control</title>
-  <style>
-      body {
-        height: 150px;
-        width: 220px;
-      }
-    </style>
+  <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-  <hgroup>
-    <h1>Time Control</h1>
-    <h2>Maintain time spans across Google searches</h2>
-  </hgroup>
+  <h1>Time Control</h1>
+  <p>Control the time span option of all Google searches. It works exactly like the time options under <span>Tools</span>, except your choice will persist across multiple searches.</p>
 
   <form id="form">
-    <label for="time-options">Choose the time span for your searches.</label>
-    <select id="time-options">
-      <option value="tbs=qdr:a" selected>Any Time</option>
-      <option value="tbs=qdr:h">Past Hour</option>
-      <option value="tbs=qdr:d">Past 24 Hours</option>
-      <option value="tbs=qdr:w">Past Week</option>
-      <option value="tbs=qdr:m">Past Month</option>
-      <option value="tbs=qdr:y">Past Year</option>
-      <option value="custom-range">Custom Range</option>
-    </select>
-    <div id="date-range">
-
+    <div class="msg" role="alert">
+      <span class="msg-txt"></span>
+      <span class="msg-button display-none">
+        <button id="successClose" class="close">
+          <span aria-hidden="true">X</span>
+          <span class="visually-hidden">Close</span>
+        </button>
+      </span>
     </div>
+    <fieldset>
+      <legend>Choose the time span for your Google searches:</legend>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:a"> Any Time</label>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:h"> Past Hour</label>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:d"> Past 24 Hours</label>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:w"> Past Week</label>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:m"> Past Month</label>
+      <label> <input type="radio" name="time-span" value="tbs=qdr:y"> Past Year</label>
+      <label aria-expanded="false"> <input type="radio" name="time-span" value="custom-range"> Custom Range</label>
+      <fieldset aria-hidden="true" class="display-none" tabindex="-1">
+        <legend>Choose custom time range:</legend>
+        <label for="start-date">Input start date (mm/dd/yyyy)</label>
+        <input type="text" name="start-date" id="start-date">
+        <label for="end-date">Input end date (mm/dd/yyyy)</label>
+        <input type="text" name="end-date" id="end-date">
+      </fieldset>
+    </fieldset>
+
     <button type="submit">Submit</button>
   </form>
+
+  <label><input type="checkbox" id="disable-extension" value="disable-extension"> Disable the extension from working</label>
+  
   <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>

@@ -14,7 +14,6 @@ chrome.runtime.onInstalled.addListener(function() {
         conditions: [new chrome.declarativeContent.PageStateMatcher({
             pageUrl: {
               hostSuffix: 'google.com',
-              pathContains: 'search',
             },
               css: [".gsfi"]
             })],
