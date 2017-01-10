@@ -10,7 +10,8 @@
 let DATE_MATCH = /(0[1-9]|1[012])([//])(0[1-9]|[12][0-9]|3[01])\2(19|20)\d\d/g;
 // Same as above but this will be used to validate user input.
 let DATE_VALIDATE = /^(0[1-9]|1[012])([//])(0[1-9]|[12][0-9]|3[01])\2(19|20)\d\d$/;
-
+// Clean the url of any previous date spans
+let CLEAN_DATE_SPANS = /&tbs=qdr:[ahdwmy]|&tbs=cdr:1,cd_min:\d{1,2}[//]\d{1,2}[//]\d{2,4},cd_max:\d{1,2}[//]\d{1,2}[//]\d{2,4}/g;
 /*----- ON PAGE LOAD -----*/
 
 // Populate stored information and add listeners.
@@ -25,10 +26,14 @@ function onDOMLoaded() {
 
   document.getElementById('msg-button').addEventListener('click', closeMessage);
 
+  // document.getElementById('disable-extension').addEventListener('click', disableExtension);
+
   document.getElementById('form').addEventListener('submit', onFormSubmit);
 }
 
-// Retrieve data from Chrome's local storage and, if applicable, populate the form.
+// Helper function, called from onDOMLoaded
+// Retrieve data from Chrome's local storage and,
+// if applicable, populate the form.
 function populateSavedData() {
   chrome.storage.local.get('dateConfig', function(items) {
     var dateConfig = items.dateConfig;
@@ -84,6 +89,9 @@ function clearFieldSet(event) {
 
 /*----- RETRIEVE AND VALIDATE FORM DATA -----*/
 
+// Call helper functions to validate form data,
+// save it to Chrome's local storage, and reload
+// the tab with the entered time span.
 function onFormSubmit(event) {
   event.preventDefault();
   console.log(event);
@@ -94,35 +102,49 @@ function onFormSubmit(event) {
     var timeSpan = retrieveFormData();
 
     if (timeSpan !== -1) {
-      console.log('onFormSubmit: ', timeSpan);
-      chrome.storage.local.set({
-        dateConfig: {
-          timeSpan: timeSpan,
-          isDisabled: false
-        }
-      }, function() {
-
-        // Get the tabID of the open tab behind the popup.
-        var query = {
-          active: true,
-          windowType: "normal",
-          currentWindow: true
-        };
-        chrome.tabs.query(query, function(tabs) {
-          var tab = tabs[0];
-          console.log(tab)
-          if (tab.url.indexOf('search') >= 0) {
-            var newURL = tab.url + '&' + timeSpan;
-
-            // Reload the page with the updated URL
-            chrome.tabs.update(tab.id, {url: newURL});
-          }
-        });
-      });
+      setChromeStorage(timeSpan);
     }
   }
 }
 
+// Helper function called from onFormSubmit
+function setChromeStorage(timeSpan) {
+  console.log('onFormSubmit: ', timeSpan);
+  chrome.storage.local.set({
+    dateConfig: {
+      timeSpan: timeSpan,
+      isDisabled: false
+    }
+  }, function() {
+    loadUpdatedTab(timeSpan);
+  });
+}
+
+// Helper function called from setChromeStorage
+function loadUpdatedTab(timeSpan) {
+
+  // Get the tabID of the open tab behind the popup.
+  var query = {
+    active: true,
+    windowType: "normal",
+    currentWindow: true
+  };
+
+  chrome.tabs.query(query, function(tabs) {
+    var tab = tabs[0];
+    console.log(tab)
+    if (tab.url.indexOf('search') >= 0) {
+      // Remove any exsisting date span parameters
+      var newURL = tab.url.replace(CLEAN_DATE_SPANS, '');
+      var newURL = newURL + '&' + timeSpan;
+
+      // Reload the page with the updated URL
+      chrome.tabs.update(tab.id, {url: newURL});
+    }
+  });
+}
+
+// Helper function called from onFormSubmit
 function retrieveFormData() {
   var timeSpan = document.querySelector('input[name="time-span"]:checked');
   console.log('timeSpan: ', timeSpan);
@@ -135,6 +157,8 @@ function retrieveFormData() {
   return basicValidation(timeSpan, startTime, endTime);
 }
 
+// Helper function called from retrieveFormData
+// Returns the time span or -1, if there is an error
 function basicValidation(timeSpan, startTime, endTime) {
   // Nothing was entered
   if (!timeSpan && !startTime.value && !endTime.value) {
@@ -142,7 +166,7 @@ function basicValidation(timeSpan, startTime, endTime) {
     displayErrorMessage('Please choose either a preset or custom time span',
       'presets');
 
-    // Custom time was entered
+  // Custom time was entered
   } else if (!timeSpan && (startTime.value || endTime.value)) {
     console.log(startTime.value, ' || ', endTime.value)
     if (!startTime.value || !endTime.value) {
@@ -160,6 +184,8 @@ function basicValidation(timeSpan, startTime, endTime) {
   return -1;
 }
 
+// Helper function called from basicValidation
+// Returns custom time span or -1 if there is an error
 function validateCustomTime(start, end) {
   if(DATE_VALIDATE.test(start) && DATE_VALIDATE.test(end)) {
     console.log('validateCustomTime: success');
@@ -171,10 +197,12 @@ function validateCustomTime(start, end) {
   }
 }
 
-
-
 /*----- ERROR AND SUCCESS MESSAGES -----*/
 
+// Displays an alert message above the form if an
+// error was detected in the form input.
+// Takes the error message to display and id of
+// the element closest to the error
 function displayErrorMessage(message, toFocusOn) {
   console.log('displayed error: ', message)
   var element = document.getElementById('msg');
@@ -193,6 +221,8 @@ function displayErrorMessage(message, toFocusOn) {
   document.getElementById(toFocusOn).focus();
 }
 
+// Closes a message dialog and resets it's
+// contents when the "x" button is clicked
 function closeMessage(event) {
   console.log('close message')
   var element = document.getElementById('msg');
