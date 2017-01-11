@@ -9,13 +9,13 @@
 </head>
 <body>
   <h1>Time Control</h1>
-  <p>Control the time span option of all Google searches. It works exactly like the time
+  <p class="intro">Control the time span option for all Google searches. It works exactly like the time
     options under <span class="bold">Tools</span>, except your choice will persist across
     multiple searches.</p>
 
   <div id="msg" role="alert">
     <span id="msg-txt"></span>
-    <span id="msg-button" class="display-none">
+    <span id="msg-button" class="msg-button display-none">
       <button id="closeMsg" class="close">
         <span aria-hidden="true">X</span>
         <span class="visually-hidden">Close</span>
@@ -26,25 +26,29 @@
   <form id="form">
     <fieldset id="presets">
       <legend>Choose the time span for your Google searches:</legend>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:a"> Any Time</label>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:h"> Past Hour</label>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:d"> Past 24 Hours</label>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:w"> Past Week</label>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:m"> Past Month</label>
-      <label> <input type="radio" name="time-span" value="tbs=qdr:y"> Past Year</label>
+      <div class="indent">
+        <label> <input type="radio" name="time-span" value="tbs=qdr:a"> Any Time</label>
+        <label> <input type="radio" name="time-span" value="tbs=qdr:h"> Past Hour</label>
+        <label> <input type="radio" name="time-span" value="tbs=qdr:d"> Past 24 Hours</label>
+        <label> <input type="radio" name="time-span" value="tbs=qdr:w"> Past Week</label>
+        <label> <input type="radio" name="time-span" value="tbs=qdr:m"> Past Month</label>
+        <label> <input type="radio" name="time-span" value="tbs=qdr:y"> Past Year</label>
+      </div>
     </fieldset>
     <hr />
     <fieldset id="custom-range">
-      <legend><span id="orText">OR</span> Choose custom time range:</legend>
-      <label for="start-date">Input start date (mm/dd/yyyy)</label>
-      <input type="text" name="start-date" id="start-date">
-      <label for="end-date">Input end date (mm/dd/yyyy)</label>
-      <input type="text" name="end-date" id="end-date">
+      <legend><span class="orText bold">OR</span> Choose custom time range:</legend>
+      <div class="indent">
+        <label for="start-date">Input start date (mm/dd/yyyy)</label>
+        <input type="text" name="start-date" id="start-date">
+        <label for="end-date">Input end date (mm/dd/yyyy)</label>
+        <input type="text" name="end-date" id="end-date">
+      </div>
     </fieldset>
     <button type="submit">Submit</button>
   </form>
 
-  <label><input type="checkbox" id="disable-extension" value="disable-extension"> Disable the extension from working</label>
+  <label class="disable-extension"><input type="checkbox" id="disable-extension" value="disable-extension"> Disable extension</label>
 
   <script type="text/javascript" src="js/popup.js"></script>
 </body>

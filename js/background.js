@@ -30,14 +30,11 @@ chrome.runtime.onInstalled.addListener(function() {
 // storage, the appropriate parameter is added to the end of the url
 // and the page is reloaded.
 chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
-  console.log(details)
   chrome.storage.local.get('dateConfig', function(items) {
     var dateConfig = items.dateConfig;
-    console.log('dateConfig', dateConfig);
-    if (dateConfig.timeSpan) {
+    if (dateConfig.timeSpan && !dateConfig.isDisabled) {
       var timeSpan = dateConfig.timeSpan;
       if (details.url.indexOf(timeSpan) === -1 && details.url.indexOf('tbs=qdr') === -1 && details.url.indexOf('tbs=cdr') === -1) {
-        console.log('inside if')
         var newURL = details.url + '&' + timeSpan;
         chrome.tabs.update(details.tabId, {url: newURL});
       }

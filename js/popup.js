@@ -16,8 +16,6 @@ let CLEAN_DATE_SPANS = /&tbs=qdr:[ahdwmy]|&tbs=cdr:1,cd_min:\d{1,2}[//]\d{1,2}[/
 
 // Populate stored information and add listeners.
 function onDOMLoaded() {
-  console.log('onDOMLoaded')
-
   populateSavedData();
 
   document.getElementById('presets').addEventListener('change', clearFieldSet);
@@ -26,7 +24,7 @@ function onDOMLoaded() {
 
   document.getElementById('msg-button').addEventListener('click', closeMessage);
 
-  // document.getElementById('disable-extension').addEventListener('click', disableExtension);
+  document.getElementById('disable-extension').addEventListener('click', disableExtension);
 
   document.getElementById('form').addEventListener('submit', onFormSubmit);
 }
@@ -37,7 +35,6 @@ function onDOMLoaded() {
 function populateSavedData() {
   chrome.storage.local.get('dateConfig', function(items) {
     var dateConfig = items.dateConfig;
-    console.log(dateConfig)
 
     // If the extension is disabled, then make sure the
     // appropriate checkbox is checked.
@@ -49,13 +46,10 @@ function populateSavedData() {
       // the appropriate radio button or text field.
     } else if (typeof dateConfig.timeSpan === 'string') {
       var timeSpan = dateConfig.timeSpan;
-      console.log('timeSpan: ', timeSpan);
       var dateArray = timeSpan.match(DATE_MATCH);
-      console.log('dateArray: ', dateArray);
       // If the time span is custom, then populate
       // text area, else find the appropriate radio button.
       if (dateArray && dateArray.length === 2) {
-        console.log(typeof dateArray[0], typeof dateArray[1])
         document.getElementById('start-date').value = dateArray[0];
         document.getElementById('end-date').value = dateArray[1];
       } else {
@@ -72,7 +66,6 @@ function populateSavedData() {
 
 // Ensures only a preset or custom time span is submitted.
 function clearFieldSet(event) {
-  console.log('clearFieldSet: ', event);
   var element = event.target;
   if (element.type === 'text') {
     var radioButton = document.querySelector('input[name="time-span"]:checked');
@@ -81,7 +74,6 @@ function clearFieldSet(event) {
     }
   } else if (element.type === 'radio') {
     var customTimeSpan = document.querySelectorAll('input[type="text"]');
-    console.log('customTimeSpan: ', customTimeSpan)
     customTimeSpan[0].value = '';
     customTimeSpan[1].value = '';
   }
@@ -94,7 +86,6 @@ function clearFieldSet(event) {
 // the tab with the entered time span.
 function onFormSubmit(event) {
   event.preventDefault();
-  console.log(event);
 
   var isDisabled = document.getElementById('disable-extension').checked;
 
@@ -102,20 +93,27 @@ function onFormSubmit(event) {
     var timeSpan = retrieveFormData();
 
     if (timeSpan !== -1) {
-      setChromeStorage(timeSpan);
+      setChromeStorage(timeSpan, false);
     }
+  } else {
+    displayErrorMessage(
+      'The extension is disabled. Please Enable the extension to change the time span',
+      'disable-extension');
   }
 }
 
 // Helper function called from onFormSubmit
-function setChromeStorage(timeSpan) {
-  console.log('onFormSubmit: ', timeSpan);
+// and disableExtension
+function setChromeStorage(timeSpan, isDisabled) {
   chrome.storage.local.set({
     dateConfig: {
       timeSpan: timeSpan,
-      isDisabled: false
+      isDisabled: isDisabled,
     }
   }, function() {
+    displaySuccessMessage(
+      'Your time span has been saved',
+      'presets');
     loadUpdatedTab(timeSpan);
   });
 }
@@ -132,7 +130,6 @@ function loadUpdatedTab(timeSpan) {
 
   chrome.tabs.query(query, function(tabs) {
     var tab = tabs[0];
-    console.log(tab)
     if (tab.url.indexOf('search') >= 0) {
       // Remove any exsisting date span parameters
       var newURL = tab.url.replace(CLEAN_DATE_SPANS, '');
@@ -147,12 +144,9 @@ function loadUpdatedTab(timeSpan) {
 // Helper function called from onFormSubmit
 function retrieveFormData() {
   var timeSpan = document.querySelector('input[name="time-span"]:checked');
-  console.log('timeSpan: ', timeSpan);
   var customTimeSpan = document.querySelectorAll('input[type="text"]');
-  console.log('customTimeSpan: ', customTimeSpan)
-  var startTime = customTimeSpan[0]
-  var endTime = customTimeSpan[1]
-  console.log('startTime: ', startTime, ' endTime: ', endTime)
+  var startTime = customTimeSpan[0];
+  var endTime = customTimeSpan[1];
 
   return basicValidation(timeSpan, startTime, endTime);
 }
@@ -162,13 +156,11 @@ function retrieveFormData() {
 function basicValidation(timeSpan, startTime, endTime) {
   // Nothing was entered
   if (!timeSpan && !startTime.value && !endTime.value) {
-    console.log('!timeSpan && !startTime.value && !endTime.value')
     displayErrorMessage('Please choose either a preset or custom time span',
       'presets');
 
   // Custom time was entered
   } else if (!timeSpan && (startTime.value || endTime.value)) {
-    console.log(startTime.value, ' || ', endTime.value)
     if (!startTime.value || !endTime.value) {
       displayErrorMessage('Please enter both a start and end time for a custom time span.',
         'start-date');
@@ -188,11 +180,9 @@ function basicValidation(timeSpan, startTime, endTime) {
 // Returns custom time span or -1 if there is an error
 function validateCustomTime(start, end) {
   if(DATE_VALIDATE.test(start) && DATE_VALIDATE.test(end)) {
-    console.log('validateCustomTime: success');
     return 'tbs=cdr:1,cd_min:' + start + ',cd_max:' + end;
   } else {
-    console.log('validateCustomTime: ', DATE_VALIDATE.test(start), DATE_VALIDATE.test(end));
-    displayErrorMessage('Please Enter custom dates in mm/dd/yyyy formate', 'start-date');
+    displayErrorMessage('Please Enter custom dates in mm/dd/yyyy format', 'start-date');
     return -1;
   }
 }
@@ -204,13 +194,37 @@ function validateCustomTime(start, end) {
 // Takes the error message to display and id of
 // the element closest to the error
 function displayErrorMessage(message, toFocusOn) {
-  console.log('displayed error: ', message)
   var element = document.getElementById('msg');
   element.classList.add('alert', 'error');
 
   var msgText = document.getElementById('msg-txt');
+  msgText.innerHTML = ''; // remove any previous messages
   var newSpan = document.createElement('span');
+  newSpan.classList.add('bold');
   var spanContent = document.createTextNode('ERROR');
+  newSpan.appendChild(spanContent);
+  var content = document.createTextNode(' ' + message);
+  msgText.appendChild(newSpan);
+  msgText.appendChild(content);
+
+  document.getElementById('msg-button').classList.remove('display-none');
+
+  document.getElementById(toFocusOn).focus();
+}
+
+// Displays an alert message above the form when
+// an action has been completed.
+// Takes the success message to display and id of
+// the element closest to the error
+function displaySuccessMessage(message, toFocusOn) {
+  var element = document.getElementById('msg');
+  element.classList.add('alert', 'success');
+
+  var msgText = document.getElementById('msg-txt');
+  msgText.innerHTML = ''; // Remove any previous messages
+  var newSpan = document.createElement('span');
+  newSpan.classList.add('bold');
+  var spanContent = document.createTextNode('SUCCESS');
   newSpan.appendChild(spanContent);
   var content = document.createTextNode(' ' + message);
   msgText.appendChild(newSpan);
@@ -224,7 +238,6 @@ function displayErrorMessage(message, toFocusOn) {
 // Closes a message dialog and resets it's
 // contents when the "x" button is clicked
 function closeMessage(event) {
-  console.log('close message')
   var element = document.getElementById('msg');
   element.className = '';
 
@@ -232,6 +245,25 @@ function closeMessage(event) {
   msgText.innerHTML = '';
 
   document.getElementById('msg-button').classList.add('display-none');
+}
+
+/*----- DISABLE AND ENABLE EXTENSION -----*/
+function disableExtension(event) {
+  var checkbox = event.target;
+
+  if(checkbox.checked) {
+    setChromeStorage('', true);
+    document.getElementById('form').reset();
+    displaySuccessMessage(
+      'You have disabled the extension. Time spans are not rembered after the extension has been disabled.',
+      'disable-extension');
+  } else {
+    setChromeStorage('', false);
+    displaySuccessMessage(
+      'You have enabled the extension. Please either enter a preset or custom time span',
+      'presets'
+    );
+  }
 }
 
 /*----- CONNECT SCRIPT AND PAGE -----*/
